@@ -17,5 +17,6 @@ defined('DIR_CACHE') OR define('DIR_CACHE', DIR_ROOT . '/cache');
 defined('DIR_DATA') OR define('DIR_DATA', DIR_ROOT . '/data');
 defined('FILE_FOLLOWERS') OR define('FILE_FOLLOWERS', DIR_DATA . '/followers.json');
 defined('FILE_FRIENDS') OR define('FILE_FRIENDS', DIR_DATA . '/friends.json');
+defined('FILE_BLOCKS') OR define('FILE_BLOCKS', DIR_DATA . '/blocks.json');
 
 defined('DEFAULT_CACHE_TIME') OR define('DEFAULT_CACHE_TIME', 3600*24);

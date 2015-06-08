@@ -24,6 +24,10 @@ $friends = $api->getCached('friends/ids', array(
     'screen_name' => TWITTER_SCREEN_NAME
 ), FILE_FRIENDS, null, null);
 
+$blocks = $api->getCached('blocks/ids', array(
+    'screen_name' => TWITTER_SCREEN_NAME
+), FILE_BLOCKS, null, null);
+
 User::load();
 
 foreach(TwitterApi::$searches as $search) {
@@ -53,13 +57,8 @@ foreach(TwitterApi::$searches as $search) {
 
         foreach($items as $item) {
 
-            if((string) $item['screen_name'] === (string) TWITTER_SCREEN_NAME) {
-
-                continue;
-            }
-
-            $item['following_back'] = in_array($item['id'], $followers['ids']);
-            $item['following'] = in_array($item['id'], $friends['ids']);
+            $item['following_back'] = in_array((int) $item['id'], $followers['ids']);
+            $item['following'] = in_array((int) $item['id'], $friends['ids']);
             $item['last_status'] = isset($item['status']['created_at']) ? $item['status']['created_at'] : null;
 
             User::$data['id_' . $item['id']] = (new User($item['id']))->hydrate($item)->getData();
@@ -67,6 +66,16 @@ foreach(TwitterApi::$searches as $search) {
     }
 }
 
+// Delete blocked users
+foreach(User::$data as $id=>$data) {
+
+    if((string) $data['screen_name'] === (string) TWITTER_SCREEN_NAME
+        || in_array((int) $data['id'], $blocks['ids'])) {
+
+        unset(User::$data[$id]);
+    }
+}
+
 echo count(User::$data) . "\n";
 
-User::save();
+User::save($blocks);
