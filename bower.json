@@ -1,0 +1,11 @@
+{
+    "name": "johnstyle/twitter-search",
+    "dependencies": {
+        "jquery": "2.1.4",
+        "DataTables": "1.10.7",
+        "bootstrap": "3.3.4",
+        "datatables-bootstrap3": "0.1",
+        "ionicons": "2.0.1",
+        "fontawesome": "4.3.0"
+    }
+}

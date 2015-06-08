@@ -1,0 +1,13 @@
+{
+    "name": "johnstyle/twitter-search",
+    "version": "0.1.0",
+    "require": {
+        "php": ">=5.4.0",
+        "kertz/twitteroauth": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "app/"
+        }
+    }
+}
