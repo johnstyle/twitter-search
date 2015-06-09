@@ -94,9 +94,8 @@ User::load(array(
                                         <td style="text-align:center"><?php echo (int) $data['verified']; ?></td>
                                         <td style="text-align:center"><?php echo date('Y-m-d', strtotime($data['created_at'])); ?></td>
                                         <td class="td-lasttweet"><?php echo date('Y-m-d H:i:s', strtotime($data['last_status'])); ?></td>
-                                        <td>
-                                            <button type="button" class="btn btn-xs btn-info" title="Follow"><i class="fa fa-twitter"></i></button>
-                                            <button type="button" class="btn btn-xs btn-danger" title="Ignore"><i class="fa fa-trash"></i></button>
+                                        <td style="text-align:right">
+                                            <a href="?action=hide&id=<?php echo $data['id']; ?>" class="btn btn-xs btn-default" title="Ignore"><i class="fa fa-eye-slash"></i></a>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

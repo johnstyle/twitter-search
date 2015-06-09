@@ -2,19 +2,22 @@
 
 namespace Model;
 
+use Core\Model;
+
 /**
  * Class User
  *
  * @author  Jonathan SAHM <contact@johnstyle.fr>
  * @package Model
  */
-class User
+class User extends Model
 {
     const FILE = '/users.json';
 
     public static $data;
 
     protected $id = null;
+    protected $date = null;
     protected $name = null;
     protected $screen_name = null;
     protected $profile_image_url_https = null;
@@ -27,59 +30,11 @@ class User
     protected $description = null;
     protected $verified = null;
     protected $following = null;
+    protected $following_date = null;
     protected $following_back = null;
+    protected $following_back_date = null;
     protected $created_at = null;
     protected $last_status = null;
-
-    /**
-     * @param int $id
-     */
-    public function __construct($id = null)
-    {
-        if(!is_null($id)) {
-
-            $this->id = (int) $id;
-        }
-    }
-
-    /**
-     * @param  string $name
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        if(property_exists($this, $name)) {
-
-            return $this->{$name};
-        }
-
-        return null;
-    }
-
-    /**
-     * @param  array $data
-     * @return $this
-     */
-    public function hydrate(array $data)
-    {
-        foreach($data as $name=>$value) {
-
-            if(property_exists($this, $name)) {
-
-                $this->{$name} = $value;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getData()
-    {
-        return get_object_vars($this);
-    }
 
     /**
      * @param  array $filters
@@ -122,16 +77,5 @@ class User
         }
 
         return static::$data;
-    }
-
-    /**
-     * @return array
-     */
-    public static function save()
-    {
-        if(!is_null(static::$data)) {
-
-            file_put_contents(DIR_DATA . static::FILE, json_encode(static::$data));
-        }
     }
 }
