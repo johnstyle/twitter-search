@@ -3,8 +3,6 @@
 
 use Core\TwitterApi;
 use Model\Block;
-use Model\Follower;
-use Model\Friend;
 use Model\Hide;
 use Model\User;
 
@@ -20,95 +18,32 @@ $api = new TwitterApi(
     TWITTER_OAUTH_TOKEN_SECRET
 );
 
-$followers = $api->get('followers/ids', array(
-    'screen_name' => TWITTER_SCREEN_NAME
-));
+$api->sync('followers/list', array(
+    'screen_name' => TWITTER_SCREEN_NAME,
+    'count' => 200,
+), '\\Model\\Follower', null, null);
 
-foreach($followers->ids as $id) {
+$api->sync('friends/list', array(
+    'screen_name' => TWITTER_SCREEN_NAME,
+    'count' => 200,
+), '\\Model\\Friend', null, null);
 
-    Follower::$data['_' . $id] = (new Follower($id))->getData();
-}
-
-Follower::save();
-
-$friends = $api->get('friends/ids', array(
-    'screen_name' => TWITTER_SCREEN_NAME
-));
-
-foreach($friends->ids as $id) {
-
-    Friend::$data['_' . $id] = (new Friend($id))->getData();
-}
-
-Friend::save();
-
-$blocks = $api->get('blocks/ids', array(
-    'screen_name' => TWITTER_SCREEN_NAME
-));
-
-foreach($blocks->ids as $id) {
-
-    Block::$data['_' . $id] = (new Block($id))->getData();
-}
-
-Block::save();
-
-User::load();
-Hide::load();
+$api->sync('blocks/list', array(
+    'screen_name' => TWITTER_SCREEN_NAME,
+    'count' => 200,
+), '\\Model\\Block', null, null);
 
 foreach(TwitterApi::$searches as $search) {
 
-    $lastMd5File = null;
-
-    echo "\nTerm: " . $search . "\n--------------------\n";
-
-    for($page = 1; $page <= 50; $page++) {
-
-        $fileCache = DIR_CACHE . '/' . md5($search . ';' . $page) . '.json';
-
-        $items = $api->getCached('users/search', array(
-            'q' => $search,
-            'count' => 20,
-            'page' => $page,
-        ), $fileCache);
-
-        if($lastMd5File === (string) md5_file($fileCache)) {
-
-            break;
-        }
-
-        $lastMd5File = (string) md5_file($fileCache);
-
-        echo "Page: " . $page . " - " . ($page*20) . "\n";
-
-        foreach($items as $item) {
-
-            $idStr = '_' . $item['id'];
-
-            $item['following'] = array_key_exists($idStr, Friend::$data);
-            $item['following_date'] = null;
-            $item['following_back'] = array_key_exists($idStr, Follower::$data);
-            $item['following_back_date'] = null;
-            $item['last_status'] = isset($item['status']['created_at']) ? $item['status']['created_at'] : null;
-
-            if(true === $item['following']
-                && (!array_key_exists($idStr, User::$data)
-                    || is_null(User::$data[$idStr]['following_date']))) {
-
-                $item['following_date'] = date('Y-m-d H:i:s');
-            }
-
-            if(true === $item['following_back']
-                && (!array_key_exists($idStr, User::$data)
-                    || is_null(User::$data[$idStr]['following_back_date']))) {
-
-                $item['following_back_date'] = date('Y-m-d H:i:s');
-            }
-
-            User::$data[$idStr] = (new User($item['id']))->hydrate($item)->getData();
-        }
-    }
+    $api->sync('users/search', array(
+        'q' => $search,
+        'count' => 20,
+    ), '\\Model\\User');
 }
+
+User::load();
+Block::load();
+Hide::load();
 
 // Delete blocked users
 foreach(User::$data as $id=>$data) {
@@ -125,4 +60,4 @@ foreach(User::$data as $id=>$data) {
 
 echo count(User::$data) . "\n";
 
-User::save($blocks);
+User::save();

@@ -2,20 +2,15 @@
 
 namespace Model;
 
-use Core\Model;
-
 /**
  * Class Block
  *
  * @author  Jonathan SAHM <contact@johnstyle.fr>
  * @package Model
  */
-class Block extends Model
+class Block extends User
 {
     const FILE = '/blocks.json';
 
     public static $data;
-
-    protected $id = null;
-    protected $date = null;
 }

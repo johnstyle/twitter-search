@@ -91,4 +91,14 @@ class Model
             file_put_contents(DIR_DATA . static::FILE, json_encode(static::$data));
         }
     }
+
+    /**
+     * @return int
+     */
+    public static function count()
+    {
+        return count(file_exists(DIR_DATA . static::FILE)
+            ? json_decode(file_get_contents(DIR_DATA . static::FILE), true)
+            : array());
+    }
 }

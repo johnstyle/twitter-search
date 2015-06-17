@@ -14,6 +14,90 @@ class TwitterApi extends \TwitterOAuth
     public static $searches;
 
     /**
+     * @param string $url
+     * @param array  $parameters
+     * @param string $model
+     * @param  int   $cache
+     * @param  int   $sleep
+     */
+    public function sync($url, array $parameters = array(), $model, $cache = DEFAULT_CACHE_TIME, $sleep = 10)
+    {
+        $responseHash = null;
+        $cursor = -1;
+
+        echo "\n" . $url . "\n------------------------------\n";
+
+        do {
+
+            switch($url) {
+
+                case 'users/search':
+
+                    if(-1 === $cursor) {
+
+                        $cursor = 1;
+                    }
+
+                    $parameters = array_merge($parameters, array(
+                        'page' => $cursor,
+                    ));
+
+                    $response = $this->getCached($url, $parameters, DIR_CACHE . '/' . md5($url . json_encode($parameters)) . '.json', $cache, $sleep);
+
+                    if($response) {
+
+                        $response = array(
+                            'users' => $response
+                        );
+                    }
+                    break;
+
+                default:
+
+                    $parameters = array_merge($parameters, array(
+                        'cursor' => $cursor,
+                    ));
+
+                    $response = $this->getCached($url, $parameters, DIR_CACHE . '/' . md5($url . json_encode($parameters)) . '.json', $cache, $sleep);
+                    break;
+            }
+
+            echo json_encode($parameters) ."\n";
+
+            $responseHashNext = (string) md5(json_encode($response));
+
+            if($response
+                && $responseHash !== $responseHashNext) {
+
+                $responseHash = $responseHashNext;
+
+                $model::load();
+
+                foreach($response['users'] as $item) {
+
+                    $model::$data['_' . $item['id']] = (new $model($item['id']))->hydrate($item)->getData();
+                }
+
+                $model::save();
+
+                if(isset($response['next_cursor'])) {
+
+                    $cursor = (int) $response['next_cursor'];
+
+                } else {
+
+                    $cursor++;
+                }
+
+            } else {
+
+                $cursor = 0;
+            }
+
+        } while ((int) $cursor !== 0);
+    }
+
+    /**
      * @param  string $url
      * @param  array  $parameters
      * @param  string $file
@@ -32,9 +116,29 @@ class TwitterApi extends \TwitterOAuth
                 sleep($sleep);
             }
 
-            file_put_contents($file, json_encode($this->get($url, $parameters)));
+            $response = $this->get($url, $parameters);
+
+            if(!$response
+                || isset($response['errors'])) {
+
+                return false;
+            }
+
+            file_put_contents($file, json_encode($response));
         }
 
         return json_decode(file_get_contents($file), true);
+    }
+
+    /**
+     * @param  string $url
+     * @param  array  $parameters
+     * @return array
+     */
+    public function get($url, array $parameters = array())
+    {
+        $response = parent::get($url, $parameters);
+
+        return json_decode(json_encode($response), true);
     }
 }

@@ -15,6 +15,7 @@ defined('DEFAULT_LANGUAGE') OR define('DEFAULT_LANGUAGE', 'en');
 defined('DIR_ROOT') OR define('DIR_ROOT', realpath(__DIR__) . '/..');
 defined('DIR_CACHE') OR define('DIR_CACHE', DIR_ROOT . '/cache');
 defined('DIR_DATA') OR define('DIR_DATA', DIR_ROOT . '/data');
+defined('DIR_PUBLIC_HTML') OR define('DIR_PUBLIC_HTML', DIR_ROOT . '/public_html');
 defined('FILE_FOLLOWERS') OR define('FILE_FOLLOWERS', DIR_DATA . '/followers.json');
 defined('FILE_FRIENDS') OR define('FILE_FRIENDS', DIR_DATA . '/friends.json');
 defined('FILE_BLOCKS') OR define('FILE_BLOCKS', DIR_DATA . '/blocks.json');

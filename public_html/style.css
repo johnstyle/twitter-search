@@ -76,8 +76,12 @@ body > .container{
     left: 4px;
 }
 
-
-
+table.table {
+    width:100%!important;
+}
+table.table thead th{
+    font-size:13px;
+}
 table.table tbody td{
     line-height: 3;
     font-size:13px;

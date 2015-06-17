@@ -8,8 +8,8 @@ include realpath(__DIR__) . '/vendor/autoload.php';
 
 TwitterApi::$searches = include realpath(__DIR__) . '/settings/searches.php';
 
-define('CONTROLLER', isset($_GET['controller']) && '' !== (string) $_GET['controller'] ? (string) $_GET['controller'] : 'user');
-define('ACTION', isset($_GET['action']) && '' !== (string) $_GET['action'] ? (string) $_GET['action'] : null);
+define('CONTROLLER', isset($_GET['controller']) && '' !== (string) $_GET['controller'] ? (string) $_GET['controller'] : 'home');
+define('ACTION', isset($_GET['action']) && '' !== (string) $_GET['action'] ? (string) $_GET['action'] : 'index');
 
 $controllerName = '\\Controller\\' . str_replace(' ', '', ucwords(str_replace('_', ' ', CONTROLLER))) . 'Controller';
 
@@ -19,15 +19,13 @@ if(!class_exists($controllerName)) {
 }
 
 $controller = new $controllerName();
+$controller->init();
 
-if(!is_null(ACTION)) {
+$actionName = 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', ACTION)));
 
-    $actionName = 'get' . str_replace(' ', '', ucwords(str_replace('_', ' ', ACTION)));
+if(!method_exists($controller, $actionName)) {
 
-    if(!method_exists($controller, $actionName)) {
-
-        throw new \Exception('Method ' . $controllerName . '::' . $actionName . '(); error');
-    }
-
-    $controller->{$actionName}();
+    throw new \Exception('Method ' . $controllerName . '::' . $actionName . '(); error');
 }
+
+$controller->{$actionName}();
